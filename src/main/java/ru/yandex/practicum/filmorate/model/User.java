@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.Email;
@@ -13,7 +12,6 @@ import java.time.LocalDate;
 @Data
 @Builder
 @Validated
-@ConfigurationProperties(prefix="application.properties")
 public class User {
     private long id;
 
@@ -36,13 +34,13 @@ public class User {
 
     public static boolean validate(User user) {
         boolean isValid = false;
-        if (!(user.getEmail().isBlank()
+        if (!(user.getEmail() == null
                 || user.getEmail().isEmpty()
-                || user.getEmail() == null
+                || user.getEmail().isBlank()
                 || !user.getEmail().contains("@")
+                || user.getLogin() == null
                 || user.getLogin().isEmpty()
                 || user.getLogin().isBlank()
-                || user.getLogin() == null
                 || user.getLogin().contains(" ")
                 || user.getBirthday().isAfter(LocalDate.now()))) {
             isValid = true;
