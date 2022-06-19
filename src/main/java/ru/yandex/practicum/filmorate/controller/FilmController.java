@@ -23,7 +23,7 @@ public class FilmController {
 
     @PostMapping
     public Film addFilm(@RequestBody @Valid Film film) throws FilmAlreadyExistsException, ValidationException {
-        if (films.containsValue(film)) {
+        if (films.get(film.getId())!=null) {
             throw new FilmAlreadyExistsException("фильм уже существует");
         } else if (!Film.validate(film)) {
             log.error("валидация фильма не пройдена");
@@ -38,7 +38,7 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@RequestBody @Valid Film film) throws FilmNotFoundException, ValidationException {
-        if (!films.containsValue(film)) {
+        if (films.get(film.getId())==null) {
             throw new FilmNotFoundException("такого фильма не существует");
         } else {
             if (Film.validate(film)) {

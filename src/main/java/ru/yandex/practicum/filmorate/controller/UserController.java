@@ -26,7 +26,7 @@ public class UserController {
         if (user.getName() == null || user.getName().isBlank() || user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
-        if (users.containsValue(user)) {
+        if (users.get(user.getId())!=null) {
             throw new UserAlreadyExistsException("пользователь уже существует");
         } else if (!User.validate(user)) {
             log.error("валидация пользователя не пройдена");
@@ -41,7 +41,7 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@RequestBody @Valid User user) throws UserNotFoundException, ValidationException {
-        if (!users.containsValue(user)) {
+        if (users.get(user.getId())==null) {
             throw new UserNotFoundException("такого пользователя не существует");
         } else {
             if (User.validate(user)) {
