@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class UserControllerTest {
 
     private UserStorage userStorage = new InMemoryUserStorage();
-    private UserService userService = new UserService();
+    private UserService userService = new UserService(userStorage);
 
     private User user = User.builder().login("Sveta")
             .name("Svetlana")
@@ -35,7 +35,7 @@ class UserControllerTest {
     @Test
     void blankEmail() {
         user.setEmail(" ");
-        UserController userController = new UserController(userStorage, userService);
+        UserController userController = new UserController(userService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {
@@ -50,7 +50,7 @@ class UserControllerTest {
     @Test
     void emptyEmail() {
         user.setEmail("");
-        UserController userController = new UserController(userStorage, userService);
+        UserController userController = new UserController(userService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {
@@ -65,7 +65,7 @@ class UserControllerTest {
     @Test
     void emailWithoutAt() {
         user.setEmail("box");
-        UserController userController = new UserController(userStorage, userService);
+        UserController userController = new UserController(userService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {
@@ -80,7 +80,7 @@ class UserControllerTest {
     @Test
     void nullEmail() {
         user.setEmail(null);
-        UserController userController = new UserController(userStorage, userService);
+        UserController userController = new UserController(userService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {
@@ -95,7 +95,7 @@ class UserControllerTest {
     @Test
     void loginIsBlank() {
         user.setLogin(" ");
-        UserController userController = new UserController(userStorage, userService);
+        UserController userController = new UserController(userService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {
@@ -110,7 +110,7 @@ class UserControllerTest {
     @Test
     void loginIsEmpty() {
         user.setLogin("");
-        UserController userController = new UserController(userStorage, userService);
+        UserController userController = new UserController(userService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {
@@ -125,7 +125,7 @@ class UserControllerTest {
     @Test
     void loginIsNull() {
         user.setLogin(null);
-        UserController userController = new UserController(userStorage, userService);
+        UserController userController = new UserController(userService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {
@@ -140,7 +140,7 @@ class UserControllerTest {
     @Test
     void incorrectBirthDay() {
         user.setBirthday(LocalDate.now().plusDays(1));
-        UserController userController = new UserController(userStorage, userService);
+        UserController userController = new UserController(userService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {

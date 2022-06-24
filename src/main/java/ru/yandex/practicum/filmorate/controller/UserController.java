@@ -8,82 +8,60 @@ import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import javax.validation.Valid;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
+import java.util.Set;
 
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private final UserStorage userStorage;
     private final UserService userService;
 
     @Autowired
-    public UserController(UserStorage userStorage, UserService userService) {
-        this.userStorage = userStorage;
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @PostMapping
     public User addUser(@RequestBody @Valid User user) throws UserAlreadyExistsException, ValidationException {
-        return userStorage.addUser(user);
+        return userService.addUser(user);
     }
 
     @PutMapping
     public User updateUser(@RequestBody @Valid User user) throws UserNotFoundException, ValidationException {
-        return userStorage.updateUser(user);
+        return userService.updateUser(user);
     }
 
     @GetMapping
     public List<User> getAllUsers() {
-        return userStorage.getAllUsers();
+        return userService.getAllUsers();
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public User addFriend(@PathVariable long id, @PathVariable long friendId) throws UserNotFoundException {
-        if (userStorage.getUsers().get(id) == null || userStorage.getUsers().get(friendId) == null) {
-            throw new UserNotFoundException("пользователя для добавления друга не существует");
-        }
-        return userService.addFriend(userStorage.getUsers().get(id), userStorage.getUsers().get(friendId));
+        return userService.addFriend(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public User deleteFriend(@PathVariable long id, @PathVariable long friendId) {
-        return userService.deleteFriend(userStorage.getUsers().get(id), userStorage.getUsers().get(friendId));
+    public User deleteFriend(@PathVariable long id, @PathVariable long friendId) throws UserNotFoundException {
+        return userService.deleteFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
-    public Set<User> getFriends(@PathVariable long id) {
-        Set<Long> friendsIdList = userService.getFriends(userStorage.getUsers().get(id));
-        Set<User> friendsList = new HashSet<>();
-        if (friendsIdList != null) {
-            friendsList = friendsIdList.stream()
-                    .map(userStorage.getUsers()::get)
-                    .collect(Collectors.toSet());
-            return friendsList;
-        } else {
-            return friendsList;
-        }
+    public Set<User> getFriends(@PathVariable long id) throws UserNotFoundException {
+        return userService.getFriends(id);
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
     public Set<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) throws UserNotFoundException {
-        Set<Long> friendsIdList = userService.getCommonFriends(userStorage.getUsers().get(id), userStorage.getUsers().get(otherId));
-        Set<User> friendsList = new HashSet<>();
-        if (friendsIdList != null) {
-            friendsList = friendsIdList.stream()
-                    .map(userStorage.getUsers()::get)
-                    .collect(Collectors.toSet());
-        }
-            return friendsList;
+        return userService.getCommonFriends(id, otherId);
     }
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable long id) throws UserNotFoundException {
-        return userStorage.getUserById(id);
+        return userService.getUserById(id);
     }
 }

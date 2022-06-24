@@ -18,7 +18,7 @@ import java.util.Map;
 @Component
 @Getter
 @Setter
-public class InMemoryUserStorage implements UserStorage{
+public class InMemoryUserStorage implements UserStorage {
 
     private Map<Long, User> users = new HashMap<>();
     private long lastId = 0;
@@ -28,7 +28,7 @@ public class InMemoryUserStorage implements UserStorage{
         if (user.getName() == null || user.getName().isBlank() || user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
-        if (users.get(user.getId())!=null) {
+        if (users.get(user.getId()) != null) {
             throw new UserAlreadyExistsException("пользователь уже существует");
         } else if (!User.validate(user)) {
             log.error("валидация пользователя не пройдена");
@@ -43,7 +43,7 @@ public class InMemoryUserStorage implements UserStorage{
 
     @Override
     public User updateUser(User user) throws UserNotFoundException, ValidationException {
-        if (users.get(user.getId())==null) {
+        if (users.get(user.getId()) == null) {
             throw new UserNotFoundException("такого пользователя не существует");
         } else {
             if (User.validate(user)) {
@@ -64,11 +64,11 @@ public class InMemoryUserStorage implements UserStorage{
     }
 
     @Override
-    public User getUserById (long id) throws UserNotFoundException {
-        if (getUsers().get(id) == null) {
+    public User getUserById(long id) throws UserNotFoundException {
+        if (users.get(id) == null) {
             throw new UserNotFoundException("пользователь с id " + id + " не существует");
         }
-        return getUsers().get(id);
+        return users.get(id);
     }
 
     public long makeId() {

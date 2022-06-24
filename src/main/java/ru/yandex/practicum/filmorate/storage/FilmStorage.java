@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.List;
-import java.util.Map;
 
 public interface FilmStorage {
 
@@ -15,8 +14,6 @@ public interface FilmStorage {
     Film updateFilm(Film film) throws FilmNotFoundException, ValidationException;
 
     List<Film> getAllFilms();
-
-    Map<Long, Film> getFilms();
 
     Film getFilmById(long id) throws FilmNotFoundException;
 }

@@ -18,13 +18,13 @@ import java.util.Map;
 @Component
 @Getter
 @Setter
-public class InMemoryFilmStorage implements FilmStorage{
+public class InMemoryFilmStorage implements FilmStorage {
     private Map<Long, Film> films = new HashMap<>();
     private long lastId = 0;
 
     @Override
     public Film addFilm(Film film) throws FilmAlreadyExistsException, ValidationException {
-        if (films.get(film.getId())!=null) {
+        if (films.get(film.getId()) != null) {
             throw new FilmAlreadyExistsException("фильм уже существует");
         } else if (!Film.validate(film)) {
             log.error("валидация фильма не пройдена");
@@ -38,8 +38,8 @@ public class InMemoryFilmStorage implements FilmStorage{
     }
 
     @Override
-    public Film updateFilm(Film film) throws FilmNotFoundException, ValidationException{
-        if (films.get(film.getId())==null) {
+    public Film updateFilm(Film film) throws FilmNotFoundException, ValidationException {
+        if (films.get(film.getId()) == null) {
             throw new FilmNotFoundException("такого фильма не существует");
         } else {
             if (Film.validate(film)) {
@@ -60,10 +60,10 @@ public class InMemoryFilmStorage implements FilmStorage{
 
     @Override
     public Film getFilmById(long id) throws FilmNotFoundException {
-        if (getFilms().get(id) == null) {
+        if (films.get(id) == null) {
             throw new FilmNotFoundException("фильма с id " + id + " не существует");
         }
-        return getFilms().get(id);
+        return films.get(id);
     }
 
     public long makeId() {
