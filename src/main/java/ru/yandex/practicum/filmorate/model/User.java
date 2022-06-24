@@ -8,13 +8,14 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
 @Validated
 public class User {
     private long id;
-
     @NotBlank
     @NotNull
     private String login;
@@ -22,6 +23,7 @@ public class User {
     private LocalDate birthday;
     @Email(message = "некорректный email")
     private String email;
+    private final Set<Long> fiendsList = new HashSet<>();
 
 
     @Override
@@ -42,9 +44,18 @@ public class User {
                 || user.getLogin().isEmpty()
                 || user.getLogin().isBlank()
                 || user.getLogin().contains(" ")
-                || user.getBirthday().isAfter(LocalDate.now()))) {
+                || user.getBirthday().isAfter(LocalDate.now()))
+                || user.getId() < 0) {
             isValid = true;
         }
         return isValid;
+    }
+
+    public void addFriend(long id) {
+        fiendsList.add(id);
+    }
+
+    public void deleteFriend(long id) {
+        fiendsList.remove(id);
     }
 }

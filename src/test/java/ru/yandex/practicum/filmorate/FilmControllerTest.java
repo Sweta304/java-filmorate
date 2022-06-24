@@ -8,6 +8,9 @@ import ru.yandex.practicum.filmorate.controller.FilmController;
 import ru.yandex.practicum.filmorate.exceptions.FilmAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 
@@ -16,6 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 class FilmControllerTest {
+
+    private FilmStorage filmStorage = new InMemoryFilmStorage();
+    private FilmService filmService = new FilmService(filmStorage);
 
     private Film film = Film.builder()
             .name("Trainspotting")
@@ -32,7 +38,7 @@ class FilmControllerTest {
     void descriptionLengthMoreThan200() {
         String generatedString = RandomStringUtils.randomAlphabetic(201);
         film.setDescription(generatedString);
-        FilmController filmController = new FilmController();
+        FilmController filmController = new FilmController(filmService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {
@@ -47,7 +53,7 @@ class FilmControllerTest {
     @Test
     void blankFilmName() {
         film.setName(" ");
-        FilmController filmController = new FilmController();
+        FilmController filmController = new FilmController(filmService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {
@@ -62,7 +68,7 @@ class FilmControllerTest {
     @Test
     void emptyFilmName() {
         film.setName("");
-        FilmController filmController = new FilmController();
+        FilmController filmController = new FilmController(filmService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {
@@ -77,7 +83,7 @@ class FilmControllerTest {
     @Test
     void nullFilmName() {
         film.setName(null);
-        FilmController filmController = new FilmController();
+        FilmController filmController = new FilmController(filmService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {
@@ -92,7 +98,7 @@ class FilmControllerTest {
     @Test
     void incorrectFilmReleaseDate() {
         film.setReleaseDate(LocalDate.of(1000, 2, 3));
-        FilmController filmController = new FilmController();
+        FilmController filmController = new FilmController(filmService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {
@@ -107,7 +113,7 @@ class FilmControllerTest {
     @Test
     void filmDurationUnderZero() {
         film.setDuration(-1);
-        FilmController filmController = new FilmController();
+        FilmController filmController = new FilmController(filmService);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 new Executable() {

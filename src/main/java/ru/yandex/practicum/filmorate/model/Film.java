@@ -8,6 +8,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @Builder
@@ -21,7 +23,8 @@ public class Film {
     private LocalDate releaseDate;
     @Min(value = 0, message = "длительность фильма не может быть отрицательной")
     private int duration;
-    private int rate;
+    private long rate;
+    private final Set<Long> usersLikes = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {
@@ -38,9 +41,17 @@ public class Film {
                 || film.getDescription().length() > 200
                 || film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))
                 || film.getDuration() < 0
-        )) {
+                || film.getId() < 0)) {
             isValid = true;
         }
         return isValid;
+    }
+
+    public void addLike(long id) {
+        usersLikes.add(id);
+    }
+
+    public void deleteLike(long id) {
+        usersLikes.remove(id);
     }
 }
