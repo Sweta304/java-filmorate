@@ -24,6 +24,7 @@ public class User {
     @Email(message = "некорректный email")
     private String email;
     private final Set<Long> fiendsList = new HashSet<>();
+    private FriendshipStatus friendshipStatus;
 
 
     @Override
