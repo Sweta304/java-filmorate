@@ -1,17 +1,18 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
 @Builder
 @Validated
 public class User {
@@ -23,9 +24,17 @@ public class User {
     private LocalDate birthday;
     @Email(message = "некорректный email")
     private String email;
-    private final Set<Long> fiendsList = new HashSet<>();
-    private FriendshipStatus friendshipStatus;
+    private Set<Long> fiendsList;
+//    private FriendshipStatus friendshipStatus;
 
+    public User(long id, String login, String name, LocalDate birthday, String email, Set<Long> fiendsList) {
+        this.id = id;
+        this.login = login;
+        this.name = name;
+        this.birthday = birthday;
+        this.email = email;
+        this.fiendsList = fiendsList;
+    }
 
     @Override
     public boolean equals(Object o) {
