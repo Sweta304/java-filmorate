@@ -24,16 +24,15 @@ public class User {
     private LocalDate birthday;
     @Email(message = "некорректный email")
     private String email;
-    private Set<Long> fiendsList;
-//    private FriendshipStatus friendshipStatus;
+    private Set<Long> friendsSet;
 
-    public User(long id, String login, String name, LocalDate birthday, String email, Set<Long> fiendsList) {
+    public User(long id, String login, String name, LocalDate birthday, String email, Set<Long> friendsSet) {
         this.id = id;
         this.login = login;
         this.name = name;
         this.birthday = birthday;
         this.email = email;
-        this.fiendsList = fiendsList;
+        this.friendsSet = friendsSet;
     }
 
     @Override
@@ -61,11 +60,4 @@ public class User {
         return isValid;
     }
 
-    public void addFriend(long id) {
-        fiendsList.add(id);
-    }
-
-    public void deleteFriend(long id) {
-        fiendsList.remove(id);
-    }
 }

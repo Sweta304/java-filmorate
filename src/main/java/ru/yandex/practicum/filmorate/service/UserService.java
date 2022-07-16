@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.exceptions.UserAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.util.HashSet;
@@ -17,36 +18,48 @@ import java.util.stream.Collectors;
 public class UserService {
     @Autowired
     private final UserStorage userStorage;
+    private final FriendStorage friendStorage;
 
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage, FriendStorage friendStorage) {
         this.userStorage = userStorage;
+        this.friendStorage = friendStorage;
     }
 
-    public User addFriend(long id, long friendId) throws UserNotFoundException {
+    public User sendFriendRequest(long id, long friendId) throws UserNotFoundException {
         User user = getUserById(id);
         User friend = getUserById(friendId);
-        user.addFriend(friendId);
-        friend.addFriend(id);
+        friendStorage.sendFriendRequest(user, friend);
         return user;
     }
 
     public User deleteFriend(long id, long friendId) throws UserNotFoundException {
         User user = getUserById(id);
         User friend = getUserById(friendId);
-        user.deleteFriend(friendId);
-        friend.deleteFriend(id);
+        friendStorage.deleteFriend(user, friend);
         return user;
     }
+
+    public User confirmFriendRequest(long id, long friendId) throws UserNotFoundException {
+        User user = getUserById(id);
+        User friend = getUserById(friendId);
+        friendStorage.confirmFriendRequest(user, friend);
+        return user;
+    }
+
+//    public List<Friendship> getUserFriendRequestsList(long id) throws UserNotFoundException {
+//        User user = getUserById(id);
+//        return friendStorage.getUserFriendRequestsList(user);
+//    }
 
     public Set<User> getCommonFriends(long id, long friendId) throws UserNotFoundException {
         User user = getUserById(id);
         User friend = getUserById(friendId);
         Set<Long> commonFriends;
-        if (user.getFiendsList() == null || friend.getFiendsList() == null) {
+        if (user.getFriendsSet() == null || friend.getFriendsSet() == null) {
             return null;
         }
-        commonFriends = user.getFiendsList().stream()
-                .filter(friend.getFiendsList()::contains)
+        commonFriends = user.getFriendsSet().stream()
+                .filter(friend.getFriendsSet()::contains)
                 .collect(Collectors.toSet());
 
         Set<User> friendsSet = new HashSet<>();
@@ -67,7 +80,7 @@ public class UserService {
 
     public Set<User> getFriends(long id) throws UserNotFoundException {
         User user = getUserById(id);
-        Set<Long> friendsIdSet = user.getFiendsList();
+        Set<Long> friendsIdSet = user.getFriendsSet();
         Set<User> friendsSet = new HashSet<>();
 
         if (friendsIdSet != null) {

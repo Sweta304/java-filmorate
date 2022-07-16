@@ -42,7 +42,7 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     public User addFriend(@PathVariable long id, @PathVariable long friendId) throws UserNotFoundException {
-        return userService.addFriend(id, friendId);
+        return userService.sendFriendRequest(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
@@ -63,5 +63,10 @@ public class UserController {
     @GetMapping("/{id}")
     public User getUserById(@PathVariable long id) throws UserNotFoundException {
         return userService.getUserById(id);
+    }
+
+    @PutMapping("/{id}/friends/requests/{friendId}")
+    public User confirmFriendRequest(@PathVariable long id, @PathVariable long friendId) throws UserNotFoundException {
+        return userService.confirmFriendRequest(id, friendId);
     }
 }

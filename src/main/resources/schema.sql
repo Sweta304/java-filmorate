@@ -33,8 +33,8 @@ CREATE TABLE IF NOT EXISTS genre
 
 CREATE TABLE IF NOT EXISTS user_friend
 (
-    user_id          long NOT NULL REFERENCES filmUser (user_id),
-    friend_id        long NOT NULL REFERENCES filmUser (user_id),
+    user_id          long NOT NULL REFERENCES filmUser (user_id), --initiator
+    friend_id        long NOT NULL REFERENCES filmUser (user_id), --recipient
     friendshipStatus boolean
 );
 

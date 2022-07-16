@@ -17,7 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
-import java.util.TreeSet;
+import java.util.Set;
 
 @Primary
 @Component
@@ -75,34 +75,16 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> getAllUsers() {
         String query = "select * from filmUser";
-        return jdbcTemplate.query(query, (rs, rowNum) -> makeUser(rs,rowNum));
+        return jdbcTemplate.query(query, (rs, rowNum) -> makeUser(rs, rowNum));
     }
-
-//    private User makeUser(ResultSet rs) throws SQLException {
-//        User user = new User(
-//                rs.getLong("user_id"),
-//                rs.getString("user_login"),
-//                rs.getString("user_name"),
-//                rs.getDate("birthday").toLocalDate(),
-//                rs.getString("email")
-//        );
-//        return user;
-//    }
 
     @Override
     public User getUserById(long id) throws UserNotFoundException {
         String query = "select * from filmUser where user_id = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(query, id);
         if (userRows.next()) {
-            log.info("Найден пользователь: {} {}", userRows.getString("user_id"), userRows.getString("user_login"));
-            User user = new User(
-                    userRows.getLong("user_id"),
-                    userRows.getString("user_login"),
-                    userRows.getString("user_name"),
-                    userRows.getDate("birthday").toLocalDate(),
-                    userRows.getString("email"),
-                    new TreeSet<>()
-            );
+            User user = jdbcTemplate.queryForObject(query, this::makeUser, id);
+            log.info("Найден пользователь: {} {}", user.getId(), user.getLogin());
             return user;
         } else {
             log.info("Пользователь с идентификатором {} не найден.", id);
@@ -111,14 +93,25 @@ public class UserDbStorage implements UserStorage {
     }
 
     private User makeUser(ResultSet resultSet, int rowNum) throws SQLException {
+        Long userId = resultSet.getLong("user_id");
+        Set friends = getFriendListByUserId(userId);
         return User.builder()
-                .id(resultSet.getLong("user_id"))
+                .id(userId)
                 .login(resultSet.getString("user_login"))
                 .name(resultSet.getString("user_name"))
                 .birthday(resultSet.getDate("birthday").toLocalDate())
                 .email(resultSet.getString("email"))
-                .fiendsList(new HashSet<>())
+                .friendsSet(friends)
                 .build();
+    }
+
+    private Set<Long> getFriendListByUserId(long id) {
+        String query = "select USER_FRIEND.FRIEND_ID\n" +
+                "from FILMUSER\n" +
+                "join USER_FRIEND on FILMUSER.USER_ID = USER_FRIEND.USER_ID\n" +
+                "where USER_FRIEND.FRIENDSHIPSTATUS = true\n" +
+                "and FILMUSER.USER_ID = ?";
+        return new HashSet(jdbcTemplate.query(query, (rs, rowNum) -> rs.getLong("friend_id"), id));
     }
 
 }
