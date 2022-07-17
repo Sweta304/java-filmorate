@@ -73,6 +73,6 @@ public class UserController {
 
     @GetMapping("/{id}/friends/requests")
     public List<Friendship> getUserFriendRequestsList(@PathVariable long id) throws UserNotFoundException {
-
+        return userService.getUserFriendRequestsList(id);
     }
 }
