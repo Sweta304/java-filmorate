@@ -6,7 +6,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.List;
 
 @Primary
 @Getter
@@ -24,7 +29,7 @@ public class FriendDbStorage implements FriendStorage {
     public void sendFriendRequest(User initiator, User recipient) {
         String query = "insert into USER_FRIEND(user_id, friend_id, friendshipstatus)\n" +
                 "values (?, ?, ?)";
-        jdbcTemplate.update(query, recipient.getId(), initiator.getId(), false);
+        jdbcTemplate.update(query, initiator.getId(), recipient.getId(), false);
     }
 
     //initiator - who want to delete friend from his friendList
@@ -35,10 +40,10 @@ public class FriendDbStorage implements FriendStorage {
                 "where USER_ID = ?\n" +
                 "  and FRIEND_ID = ?\n" +
                 "  and FRIENDSHIPSTATUS = true";
-        jdbcTemplate.update(query, initiator.getId(), recipient.getId());
+        jdbcTemplate.update(query, recipient.getId(), initiator.getId());
     }
 
-    //initiator - who sent friendship request
+    //initiator - who received friend request
     @Override
     public void confirmFriendRequest(User initiator, User recipient) {
         String query = "update USER_FRIEND\n" +
@@ -46,25 +51,22 @@ public class FriendDbStorage implements FriendStorage {
                 "where USER_ID = ?\n" +
                 "  and FRIEND_ID = ?\n" +
                 "  and FRIENDSHIPSTATUS = false";
-        jdbcTemplate.update(query, initiator.getId(), recipient.getId());
+        jdbcTemplate.update(query, recipient.getId(), initiator.getId());
     }
 
-//    @Override
-//    public List<Friendship> getUserFriendRequestsList(User user) {
-//        String query = "select F.USER_ID, F.USER_LOGIN, USER_FRIEND.FRIENDSHIPSTATUS\n" +
-//                "from USER_FRIEND\n" +
-//                "join FILMUSER F on USER_FRIEND.FRIEND_ID = F.USER_ID\n" +
-//                "where FRIEND_ID = ?";
-//        return jdbcTemplate.query(query, )
-//    }
-//
-//    private Friendship createFriendship(ResultSet resultSet, int rowNum) throws SQLException {
-//
-//        return Friendship.builder()
-//                .initiator(resultSet.getLong(""))
-//                .recipient()
-//                .status()
-//                .build();
-//    }
+    @Override
+    public List<Friendship> getUserFriendRequestsList(User user) {
+        String query = "select *\n" +
+                "from USER_FRIEND\n" +
+                "where FRIEND_ID = ?";
+        return jdbcTemplate.query(query, (rs, rowNum) -> createFriendship(rs, rowNum), user.getId());
+    }
 
+    private Friendship createFriendship(ResultSet resultSet, int rowNum) throws SQLException {
+        return Friendship.builder()
+                .initiator(resultSet.getLong("user_id"))
+                .recipient(resultSet.getLong("friend_id"))
+                .status(resultSet.getBoolean("friendshipstatus"))
+                .build();
+    }
 }

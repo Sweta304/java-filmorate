@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.UserAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -46,10 +47,10 @@ public class UserService {
         return user;
     }
 
-//    public List<Friendship> getUserFriendRequestsList(long id) throws UserNotFoundException {
-//        User user = getUserById(id);
-//        return friendStorage.getUserFriendRequestsList(user);
-//    }
+    public List<Friendship> getUserFriendRequestsList(long id) throws UserNotFoundException {
+        User user = getUserById(id);
+        return friendStorage.getUserFriendRequestsList(user);
+    }
 
     public Set<User> getCommonFriends(long id, long friendId) throws UserNotFoundException {
         User user = getUserById(id);

@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
+
+import java.util.List;
 
 @Component
 public interface FriendStorage {
@@ -12,6 +15,6 @@ public interface FriendStorage {
 
     public void confirmFriendRequest(User initiatorId, User recipientId);
 
-//    public List<Friendship> getUserFriendRequestsList(User user);
+    public List<Friendship> getUserFriendRequestsList(User user);
 
 }
