@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User addUser(@RequestBody @Valid User user) throws UserAlreadyExistsException, ValidationException {
+    public User addUser(@RequestBody @Valid User user) throws UserAlreadyExistsException, ValidationException, UserNotFoundException {
         return userService.addUser(user);
     }
 

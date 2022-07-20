@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.inMemory;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -6,13 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -68,5 +68,38 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     public long makeId() {
         return ++lastId;
+    }
+
+    @Override
+    public long addLike(long filmId, long userId) throws FilmNotFoundException {
+//        Film film = getFilmById(filmId);
+//        film.getUsersLikes().add(userId);
+//        film.setRate(film.getRate() + 1);
+//        return film.getUsersLikes().size();
+        return 1;
+    }
+
+    @Override
+    public long deleteLike(long filmId, long userId) throws UserNotFoundException, FilmNotFoundException {
+//        Film film = getFilmById(filmId);
+//        if (userId <= 0) {
+//            throw new UserNotFoundException("пользователя с id " + userId + "не существует");
+//        }
+//        film.getUsersLikes().remove(userId);
+//        film.setRate(film.getRate() - 1);
+//        return film.getUsersLikes().size();
+        return 1;
+    }
+
+    @Override
+    public List<Film> getTopFilms(int filmQty) throws FilmNotFoundException {
+        if (filmQty <= 0) {
+            throw new FilmNotFoundException("передано некорректное кол-во фильмов");
+        }
+        List<Film> topTenFilms = getAllFilms().stream()
+                .sorted(Comparator.comparingLong(Film::getRate).reversed())
+                .limit(filmQty)
+                .collect(Collectors.toList());
+        return topTenFilms;
     }
 }

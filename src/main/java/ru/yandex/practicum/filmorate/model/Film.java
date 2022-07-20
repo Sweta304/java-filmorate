@@ -2,17 +2,19 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Builder;
 import lombok.Data;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
+import java.util.Objects;
 
 @Data
 @Builder
+@Validated
 public class Film {
     private long id;
     @NotNull
@@ -24,17 +26,21 @@ public class Film {
     @Min(value = 0, message = "длительность фильма не может быть отрицательной")
     private int duration;
     private long rate;
-    private final Set<Long> usersLikes = new HashSet<>();
-    private Genre genre;
-    private Rating rating;
+    private MpaRating mpa;
+    private List<Genres> genres;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Film)) return false;
-        Film film = (Film) o;
-        return id == film.id;
+
+    public Film(long id, String name, String description, LocalDate releaseDate, int duration, long rate, MpaRating mpa, List<Genres> genres) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.rate = rate;
+        this.mpa = mpa;
+        this.genres = genres;
     }
+
 
     public static boolean validate(Film film) {
         boolean isValid = false;
@@ -49,11 +55,19 @@ public class Film {
         return isValid;
     }
 
-    public void addLike(long id) {
-        usersLikes.add(id);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Film film = (Film) o;
+        return duration == film.duration
+                && Objects.equals(name, film.name)
+                && Objects.equals(description, film.description)
+                && Objects.equals(releaseDate, film.releaseDate);
     }
 
-    public void deleteLike(long id) {
-        usersLikes.remove(id);
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, description, releaseDate, duration, rate);
     }
 }

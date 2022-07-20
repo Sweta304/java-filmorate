@@ -1,9 +1,9 @@
-package ru.yandex.practicum.filmorate.model;
+package ru.yandex.practicum.filmorate.dictionary;
 
 import lombok.Getter;
 
 @Getter
-public enum Rating {
+public enum Mpa {
     G("G"),
     PG("PG"),
     PG_THIRTEEN("PG-13"),
@@ -12,7 +12,7 @@ public enum Rating {
 
     private String value;
 
-    private Rating(String value) {
+    private Mpa(String value) {
         this.value = value;
     }
 }

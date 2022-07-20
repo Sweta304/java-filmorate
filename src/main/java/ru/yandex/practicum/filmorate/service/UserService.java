@@ -98,7 +98,7 @@ public class UserService {
         return friendsSet;
     }
 
-    public User addUser(User user) throws UserAlreadyExistsException, ValidationException {
+    public User addUser(User user) throws UserAlreadyExistsException, ValidationException, UserNotFoundException {
         return userStorage.addUser(user);
     }
 

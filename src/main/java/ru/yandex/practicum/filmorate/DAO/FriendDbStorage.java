@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.DAO;
 
 import lombok.Getter;
 import org.slf4j.Logger;
@@ -6,12 +6,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Primary
 @Getter
@@ -26,10 +29,19 @@ public class FriendDbStorage implements FriendStorage {
     }
 
     @Override
-    public void sendFriendRequest(User initiator, User recipient) {
-        String query = "insert into USER_FRIEND(user_id, friend_id, friendshipstatus)\n" +
-                "values (?, ?, ?)";
-        jdbcTemplate.update(query, initiator.getId(), recipient.getId(), false);
+    public void sendFriendRequest(User initiator, User recipient) throws UserNotFoundException {
+        if (initiator.getId() < 0 || recipient.getId() < 0) {
+            throw new UserNotFoundException("Пользователя не существует");
+        } else {
+            String query = "insert into USER_FRIEND(user_id, friend_id, friendshipstatus)\n" +
+                    "values (?, ?, ?)";
+            if (getUserFriendRequestsList(recipient).stream()
+                    .filter(x -> initiator.getId() == (x.getInitiator()))
+                    .collect(Collectors.toList())
+                    .isEmpty()) {
+                jdbcTemplate.update(query, initiator.getId(), recipient.getId(), false);
+            }
+        }
     }
 
     //initiator - who want to delete friend from his friendList
@@ -38,9 +50,8 @@ public class FriendDbStorage implements FriendStorage {
         String query = "delete\n" +
                 "from USER_FRIEND\n" +
                 "where USER_ID = ?\n" +
-                "  and FRIEND_ID = ?\n" +
-                "  and FRIENDSHIPSTATUS = true";
-        jdbcTemplate.update(query, recipient.getId(), initiator.getId());
+                "  and FRIEND_ID = ?\n";
+        jdbcTemplate.update(query, initiator.getId(), recipient.getId());
     }
 
     //initiator - who received friend request
