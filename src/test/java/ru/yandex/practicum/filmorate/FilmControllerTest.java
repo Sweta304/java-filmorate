@@ -1,130 +1,127 @@
-//package ru.yandex.practicum.filmorate;
-//
-//import org.apache.commons.lang.RandomStringUtils;
-//import org.junit.jupiter.api.Test;
-//import org.junit.jupiter.api.function.Executable;
-//import org.springframework.boot.test.context.SpringBootTest;
-//import ru.yandex.practicum.filmorate.controller.FilmController;
-//import ru.yandex.practicum.filmorate.exceptions.FilmAlreadyExistsException;
-//import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-//import ru.yandex.practicum.filmorate.model.Film;
-//import ru.yandex.practicum.filmorate.service.FilmService;
-//import ru.yandex.practicum.filmorate.storage.FilmStorage;
-//import ru.yandex.practicum.filmorate.inMemory.InMemoryFilmStorage;
-//import ru.yandex.practicum.filmorate.storage.MpaStorage;
-//
-//import java.time.LocalDate;
-//
-//import static org.junit.jupiter.api.Assertions.assertEquals;
-//import static org.junit.jupiter.api.Assertions.assertThrows;
-//
-//@SpringBootTest
-//class FilmControllerTest {
-//
-//    private FilmStorage filmStorage = new InMemoryFilmStorage();
-//    private MpaStorage mpaStorage = new MpaStorage();
-//    private FilmService filmService = new FilmService(filmStorage, mpaStorage);
-//
-//    private Film film = Film.builder()
-//            .name("Trainspotting")
-//            .description("такое вот описание")
-//            .releaseDate(LocalDate.of(1995, 1, 1))
-//            .duration(100)
-//            .build();
-//
-//    @Test
-//    void contextLoads() {
-//    }
-//
-//    @Test
-//    void descriptionLengthMoreThan200() {
-//        String generatedString = RandomStringUtils.randomAlphabetic(201);
-//        film.setDescription(generatedString);
-//        FilmController filmController = new FilmController(filmService);
-//        final ValidationException exception = assertThrows(
-//                ValidationException.class,
-//                new Executable() {
-//                    @Override
-//                    public void execute() throws ValidationException, FilmAlreadyExistsException {
-//                        filmController.addFilm(film);
-//                    }
-//                });
-//        assertEquals("данные о фильме указаны некорректно", exception.getMessage());
-//    }
-//
-//    @Test
-//    void blankFilmName() {
-//        film.setName(" ");
-//        FilmController filmController = new FilmController(filmService);
-//        final ValidationException exception = assertThrows(
-//                ValidationException.class,
-//                new Executable() {
-//                    @Override
-//                    public void execute() throws ValidationException, FilmAlreadyExistsException {
-//                        filmController.addFilm(film);
-//                    }
-//                });
-//        assertEquals("данные о фильме указаны некорректно", exception.getMessage());
-//    }
-//
-//    @Test
-//    void emptyFilmName() {
-//        film.setName("");
-//        FilmController filmController = new FilmController(filmService);
-//        final ValidationException exception = assertThrows(
-//                ValidationException.class,
-//                new Executable() {
-//                    @Override
-//                    public void execute() throws ValidationException, FilmAlreadyExistsException {
-//                        filmController.addFilm(film);
-//                    }
-//                });
-//        assertEquals("данные о фильме указаны некорректно", exception.getMessage());
-//    }
-//
-//    @Test
-//    void nullFilmName() {
-//        film.setName(null);
-//        FilmController filmController = new FilmController(filmService);
-//        final ValidationException exception = assertThrows(
-//                ValidationException.class,
-//                new Executable() {
-//                    @Override
-//                    public void execute() throws ValidationException, FilmAlreadyExistsException {
-//                        filmController.addFilm(film);
-//                    }
-//                });
-//        assertEquals("данные о фильме указаны некорректно", exception.getMessage());
-//    }
-//
-//    @Test
-//    void incorrectFilmReleaseDate() {
-//        film.setReleaseDate(LocalDate.of(1000, 2, 3));
-//        FilmController filmController = new FilmController(filmService);
-//        final ValidationException exception = assertThrows(
-//                ValidationException.class,
-//                new Executable() {
-//                    @Override
-//                    public void execute() throws ValidationException, FilmAlreadyExistsException {
-//                        filmController.addFilm(film);
-//                    }
-//                });
-//        assertEquals("данные о фильме указаны некорректно", exception.getMessage());
-//    }
-//
-//    @Test
-//    void filmDurationUnderZero() {
-//        film.setDuration(-1);
-//        FilmController filmController = new FilmController(filmService);
-//        final ValidationException exception = assertThrows(
-//                ValidationException.class,
-//                new Executable() {
-//                    @Override
-//                    public void execute() throws ValidationException, FilmAlreadyExistsException {
-//                        filmController.addFilm(film);
-//                    }
-//                });
-//        assertEquals("данные о фильме указаны некорректно", exception.getMessage());
-//    }
-//
-//}
+package ru.yandex.practicum.filmorate;
+
+import org.apache.commons.lang.RandomStringUtils;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
+import org.springframework.boot.test.context.SpringBootTest;
+import ru.yandex.practicum.filmorate.controller.FilmController;
+import ru.yandex.practicum.filmorate.exceptions.*;
+import ru.yandex.practicum.filmorate.inMemory.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+
+import java.time.LocalDate;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+@SpringBootTest
+class FilmControllerTest {
+
+    private FilmStorage filmStorage = new InMemoryFilmStorage();
+    private FilmService filmService = new FilmService(filmStorage);
+
+    private Film film = Film.builder()
+            .name("Trainspotting")
+            .description("такое вот описание")
+            .releaseDate(LocalDate.of(1995, 1, 1))
+            .duration(100)
+            .build();
+
+    @Test
+    void contextLoads() {
+    }
+
+    @Test
+    void descriptionLengthMoreThan200() {
+        String generatedString = RandomStringUtils.randomAlphabetic(201);
+        film.setDescription(generatedString);
+        FilmController filmController = new FilmController(filmService);
+        final ValidationException exception = assertThrows(
+                ValidationException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws ValidationException, FilmAlreadyExistsException, FilmNotFoundException, MpaNotFoundException, GenreNotFoundException {
+                        filmController.addFilm(film);
+                    }
+                });
+        assertEquals("данные о фильме указаны некорректно", exception.getMessage());
+    }
+
+    @Test
+    void blankFilmName() {
+        film.setName(" ");
+        FilmController filmController = new FilmController(filmService);
+        final ValidationException exception = assertThrows(
+                ValidationException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws ValidationException, FilmAlreadyExistsException, FilmNotFoundException, MpaNotFoundException, GenreNotFoundException {
+                        filmController.addFilm(film);
+                    }
+                });
+        assertEquals("данные о фильме указаны некорректно", exception.getMessage());
+    }
+
+    @Test
+    void emptyFilmName() {
+        film.setName("");
+        FilmController filmController = new FilmController(filmService);
+        final ValidationException exception = assertThrows(
+                ValidationException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws ValidationException, FilmAlreadyExistsException, FilmNotFoundException, MpaNotFoundException, GenreNotFoundException {
+                        filmController.addFilm(film);
+                    }
+                });
+        assertEquals("данные о фильме указаны некорректно", exception.getMessage());
+    }
+
+    @Test
+    void nullFilmName() {
+        film.setName(null);
+        FilmController filmController = new FilmController(filmService);
+        final ValidationException exception = assertThrows(
+                ValidationException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws ValidationException, FilmAlreadyExistsException, FilmNotFoundException, MpaNotFoundException, GenreNotFoundException {
+                        filmController.addFilm(film);
+                    }
+                });
+        assertEquals("данные о фильме указаны некорректно", exception.getMessage());
+    }
+
+    @Test
+    void incorrectFilmReleaseDate() {
+        film.setReleaseDate(LocalDate.of(1000, 2, 3));
+        FilmController filmController = new FilmController(filmService);
+        final ValidationException exception = assertThrows(
+                ValidationException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws ValidationException, FilmAlreadyExistsException, FilmNotFoundException, MpaNotFoundException, GenreNotFoundException {
+                        filmController.addFilm(film);
+                    }
+                });
+        assertEquals("данные о фильме указаны некорректно", exception.getMessage());
+    }
+
+    @Test
+    void filmDurationUnderZero() {
+        film.setDuration(-1);
+        FilmController filmController = new FilmController(filmService);
+        final ValidationException exception = assertThrows(
+                ValidationException.class,
+                new Executable() {
+                    @Override
+                    public void execute() throws ValidationException, FilmAlreadyExistsException, FilmNotFoundException, MpaNotFoundException, GenreNotFoundException {
+                        filmController.addFilm(film);
+                    }
+                });
+        assertEquals("данные о фильме указаны некорректно", exception.getMessage());
+    }
+
+}

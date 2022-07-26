@@ -9,8 +9,10 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Data
 @Builder
@@ -28,6 +30,7 @@ public class Film {
     private long rate;
     private MpaRating mpa;
     private List<Genres> genres;
+    private final Set<Long> usersLikes = new HashSet<>();
 
 
     public Film(long id, String name, String description, LocalDate releaseDate, int duration, long rate, MpaRating mpa, List<Genres> genres) {

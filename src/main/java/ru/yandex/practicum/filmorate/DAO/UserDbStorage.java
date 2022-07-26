@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.UserAlreadyExistsException;
@@ -12,6 +14,8 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -32,7 +36,8 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User addUser(User user) throws UserAlreadyExistsException, ValidationException, UserNotFoundException {
-        String query = "insert into FILMUSER (USER_LOGIN, USER_NAME, BIRTHDAY, EMAIL)\n" + "values (?,?,?,?)";
+        String query = "insert into FILMORATE_USER (USER_LOGIN, USER_NAME, BIRTHDAY, EMAIL)\n" +
+                "values (?,?,?,?)";
         if (user.getName() == null || user.getName().isBlank() || user.getName().isEmpty()) {
             user.setName(user.getLogin());
         }
@@ -42,15 +47,24 @@ public class UserDbStorage implements UserStorage {
         } else if (getAllUsers().contains(user)) {
             throw new UserAlreadyExistsException("пользователь уже существует");
         } else {
-            jdbcTemplate.update(query, user.getLogin(), user.getName(), user.getBirthday(), user.getEmail());
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection
+                        .prepareStatement(query, new String[]{"USER_ID"});
+                ps.setString(1, user.getLogin());
+                ps.setString(2, user.getName());
+                ps.setDate(3, Date.valueOf(user.getBirthday()));
+                ps.setString(4, user.getEmail());
+                return ps;
+            }, keyHolder);
+            Long userId = keyHolder.getKey().longValue();
+            return getUserById(userId);
         }
-        long userId = getAllUsers().stream().filter(x -> x.getLogin().equals(user.getLogin())).findFirst().get().getId();
-        return getUserById(userId);
     }
 
     @Override
     public User updateUser(User user) throws UserNotFoundException, ValidationException {
-        String query = "update FILMUSER\n" +
+        String query = "update FILMORATE_USER\n" +
                 "set USER_LOGIN = ?,\n" +
                 "    USER_NAME  = ?,\n" +
                 "    EMAIL      = ?,\n" +
@@ -71,13 +85,13 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getAllUsers() {
-        String query = "select * from filmUser";
+        String query = "select * from FILMORATE_USER";
         return jdbcTemplate.query(query, (rs, rowNum) -> makeUser(rs, rowNum));
     }
 
     @Override
     public User getUserById(long id) throws UserNotFoundException {
-        String query = "select * from filmUser where user_id = ?";
+        String query = "select * from FILMORATE_USER where user_id = ?";
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(query, id);
         if (userRows.next()) {
             User user = jdbcTemplate.queryForObject(query, this::makeUser, id);
@@ -91,7 +105,7 @@ public class UserDbStorage implements UserStorage {
 
     private User makeUser(ResultSet resultSet, int rowNum) throws SQLException {
         Long userId = resultSet.getLong("user_id");
-        Set friends = getFriendListByUserId(userId);
+        Set friends = new FriendDbStorage(jdbcTemplate).getFriendListByUserId(userId);
         return User.builder()
                 .id(userId)
                 .login(resultSet.getString("user_login"))
@@ -101,12 +115,4 @@ public class UserDbStorage implements UserStorage {
                 .friendsSet(friends)
                 .build();
     }
-
-    private Set<Long> getFriendListByUserId(long id) {
-        String query = "select FRIEND_ID\n" +
-                "from USER_FRIEND\n" +
-                "where USER_ID = ?\n";
-        return new HashSet(jdbcTemplate.query(query, (rs, rowNum) -> rs.getLong("friend_id"), id));
-    }
-
 }

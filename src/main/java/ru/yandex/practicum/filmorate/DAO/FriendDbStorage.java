@@ -13,7 +13,9 @@ import ru.yandex.practicum.filmorate.storage.FriendStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Primary
@@ -79,5 +81,12 @@ public class FriendDbStorage implements FriendStorage {
                 .recipient(resultSet.getLong("friend_id"))
                 .status(resultSet.getBoolean("friendshipstatus"))
                 .build();
+    }
+
+    public Set<Long> getFriendListByUserId(long id) {
+        String query = "select FRIEND_ID\n" +
+                "from USER_FRIEND\n" +
+                "where USER_ID = ?\n";
+        return new HashSet(jdbcTemplate.query(query, (rs, rowNum) -> rs.getLong("friend_id"), id));
     }
 }

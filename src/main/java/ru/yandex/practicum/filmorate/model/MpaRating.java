@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Builder;
 import lombok.Data;
-import ru.yandex.practicum.filmorate.dictionary.Mpa;
 
 @Data
 @Builder
@@ -17,7 +16,7 @@ public class MpaRating {
 
     public static boolean mpaValidation(int id) {
         boolean isValid = true;
-        if (id < 0 || id > Mpa.values().length) {
+        if (id < 0 || id > 5) {
             isValid = false;
         }
         return isValid;

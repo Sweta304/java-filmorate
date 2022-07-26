@@ -4,16 +4,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.dictionary.Genre;
-import ru.yandex.practicum.filmorate.dictionary.Mpa;
 import ru.yandex.practicum.filmorate.exceptions.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genres;
 import ru.yandex.practicum.filmorate.model.MpaRating;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -44,23 +46,31 @@ public class FilmDbStorage implements FilmStorage {
                 "values (?, ?, ?, ?, ?, ?)";
         String genreQuery = "insert into FILM_GENRE (FILM_ID, GENRE_ID)\n" +
                 "values (?, ?)";
-        long filmId;
+        Long filmId;
         if (getAllFilms().contains(film)) {
             throw new FilmAlreadyExistsException("фильм уже существует");
         } else if (!Film.validate(film)) {
             log.error("валидация фильма не пройдена");
             throw new ValidationException("данные о фильме указаны некорректно");
         } else if (film.getGenres() != null && film.getGenres().stream().filter(x -> Genres.genreValidation(x.getId())).collect(Collectors.toList()).size() < film.getGenres().size()) {
-            throw new GenreNotFoundException("жанра не существует, введите значение от 1 до " + Genre.values().length);
+            throw new GenreNotFoundException("жанра не существует");
         } else if (!MpaRating.mpaValidation(film.getMpa().getId())) {
-            throw new MpaNotFoundException("Рейтинга не существует. Введите значение от 1 до " + Mpa.values().length);
+            throw new MpaNotFoundException("Рейтинга не существует");
         } else {
-            jdbcTemplate.update(query, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getRate(), film.getMpa().getId());
-            filmId = getAllFilms()
-                    .stream()
-                    .filter(x -> x.equals(film))
-                    .findFirst()
-                    .get().getId();
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection
+                        .prepareStatement(query, new String[]{"FILM_ID"});
+                ps.setString(1, film.getName());
+                ps.setString(2, film.getDescription());
+                ps.setDate(3, Date.valueOf(film.getReleaseDate()));
+                ps.setInt(4, film.getDuration());
+                ps.setLong(5, film.getRate());
+                ps.setInt(6, film.getMpa().getId());
+                return ps;
+            }, keyHolder);
+
+            filmId = keyHolder.getKey().longValue();
             if (film.getGenres() != null) {
                 film.getGenres().stream().distinct().forEach(x -> jdbcTemplate.update(genreQuery, filmId, x.getId()));
             }
@@ -87,9 +97,9 @@ public class FilmDbStorage implements FilmStorage {
         if (getFilmById(film.getId()) == null) {
             throw new FilmNotFoundException("такого фильма не существует");
         } else if (!MpaRating.mpaValidation(film.getMpa().getId())) {
-            throw new MpaNotFoundException("Рейтинга не существует. Введите значение от 1 до " + Mpa.values().length);
+            throw new MpaNotFoundException("Рейтинга не существует");
         } else if (film.getGenres() != null && film.getGenres().stream().filter(x -> Genres.genreValidation(x.getId())).collect(Collectors.toList()).size() < film.getGenres().size()) {
-            throw new GenreNotFoundException("жанра не существует, введите значение от 1 до " + Genre.values().length);
+            throw new GenreNotFoundException("жанра не существует");
         } else {
             if (Film.validate(film)) {
                 jdbcTemplate.update(query, film.getName(), film.getDescription(), film.getReleaseDate(), film.getDuration(), film.getRate(), film.getMpa().getId(), film.getId());
@@ -129,8 +139,12 @@ public class FilmDbStorage implements FilmStorage {
         Long filmId = resultSet.getLong("film_id");
         List<Genres> genresList = getFilmsGenresByFilmId(filmId);
         int mpaId = resultSet.getInt("mpa");
-        String mpaName = Mpa.values()[mpaId - 1].getValue();
-        MpaRating mpa = MpaRating.builder().id(mpaId).name(mpaName).build();
+        MpaRating mpa = null;
+        try {
+            mpa = new MpaDAO(jdbcTemplate).getMpaById(mpaId);
+        } catch (MpaNotFoundException e) {
+            throw new RuntimeException(e);
+        }
         return Film.builder()
                 .id(filmId)
                 .name(resultSet.getString("film_name"))
@@ -143,7 +157,7 @@ public class FilmDbStorage implements FilmStorage {
                 .build();
     }
 
-    private Set<Long> getUserLikesByFilmId(long id) {
+    public Set<Long> getUserLikesByFilmId(long id) {
         String query = "select USER_ID\n" +
                 "from FILM_LIKES\n" +
                 "where FILM_ID = ?";
