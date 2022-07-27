@@ -5,12 +5,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.FilmController;
-import ru.yandex.practicum.filmorate.exceptions.FilmAlreadyExistsException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.*;
+import ru.yandex.practicum.filmorate.inMemory.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 
 import java.time.LocalDate;
 
@@ -43,7 +42,7 @@ class FilmControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, FilmAlreadyExistsException {
+                    public void execute() throws ValidationException, FilmAlreadyExistsException, FilmNotFoundException, MpaNotFoundException, GenreNotFoundException {
                         filmController.addFilm(film);
                     }
                 });
@@ -58,7 +57,7 @@ class FilmControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, FilmAlreadyExistsException {
+                    public void execute() throws ValidationException, FilmAlreadyExistsException, FilmNotFoundException, MpaNotFoundException, GenreNotFoundException {
                         filmController.addFilm(film);
                     }
                 });
@@ -73,7 +72,7 @@ class FilmControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, FilmAlreadyExistsException {
+                    public void execute() throws ValidationException, FilmAlreadyExistsException, FilmNotFoundException, MpaNotFoundException, GenreNotFoundException {
                         filmController.addFilm(film);
                     }
                 });
@@ -88,7 +87,7 @@ class FilmControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, FilmAlreadyExistsException {
+                    public void execute() throws ValidationException, FilmAlreadyExistsException, FilmNotFoundException, MpaNotFoundException, GenreNotFoundException {
                         filmController.addFilm(film);
                     }
                 });
@@ -103,7 +102,7 @@ class FilmControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, FilmAlreadyExistsException {
+                    public void execute() throws ValidationException, FilmAlreadyExistsException, FilmNotFoundException, MpaNotFoundException, GenreNotFoundException {
                         filmController.addFilm(film);
                     }
                 });
@@ -118,7 +117,7 @@ class FilmControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, FilmAlreadyExistsException {
+                    public void execute() throws ValidationException, FilmAlreadyExistsException, FilmNotFoundException, MpaNotFoundException, GenreNotFoundException {
                         filmController.addFilm(film);
                     }
                 });

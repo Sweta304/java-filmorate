@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface UserStorage {
 
-    User addUser(User user) throws UserAlreadyExistsException, ValidationException;
+    User addUser(User user) throws UserAlreadyExistsException, ValidationException, UserNotFoundException;
 
     User updateUser(User user) throws UserNotFoundException, ValidationException;
 

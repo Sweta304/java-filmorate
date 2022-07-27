@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.UserAlreadyExistsException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Friendship;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -26,7 +27,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User addUser(@RequestBody @Valid User user) throws UserAlreadyExistsException, ValidationException {
+    public User addUser(@RequestBody @Valid User user) throws UserAlreadyExistsException, ValidationException, UserNotFoundException {
         return userService.addUser(user);
     }
 
@@ -42,7 +43,7 @@ public class UserController {
 
     @PutMapping("/{id}/friends/{friendId}")
     public User addFriend(@PathVariable long id, @PathVariable long friendId) throws UserNotFoundException {
-        return userService.addFriend(id, friendId);
+        return userService.sendFriendRequest(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
@@ -63,5 +64,15 @@ public class UserController {
     @GetMapping("/{id}")
     public User getUserById(@PathVariable long id) throws UserNotFoundException {
         return userService.getUserById(id);
+    }
+
+    @PutMapping("/{id}/friends/requests/{friendId}")
+    public User confirmFriendRequest(@PathVariable long id, @PathVariable long friendId) throws UserNotFoundException {
+        return userService.confirmFriendRequest(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends/requests")
+    public List<Friendship> getUserFriendRequestsList(@PathVariable long id) throws UserNotFoundException {
+        return userService.getUserFriendRequestsList(id);
     }
 }

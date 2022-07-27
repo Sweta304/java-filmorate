@@ -5,10 +5,13 @@ import org.junit.jupiter.api.function.Executable;
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.controller.UserController;
 import ru.yandex.practicum.filmorate.exceptions.UserAlreadyExistsException;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.inMemory.InMemoryFriendStorage;
+import ru.yandex.practicum.filmorate.inMemory.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
@@ -20,7 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class UserControllerTest {
 
     private UserStorage userStorage = new InMemoryUserStorage();
-    private UserService userService = new UserService(userStorage);
+    private FriendStorage friendStorage = new InMemoryFriendStorage();
+    private UserService userService = new UserService(userStorage, friendStorage);
 
     private User user = User.builder().login("Sveta")
             .name("Svetlana")
@@ -40,7 +44,7 @@ class UserControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, UserAlreadyExistsException {
+                    public void execute() throws ValidationException, UserAlreadyExistsException, UserNotFoundException {
                         userController.addUser(user);
                     }
                 });
@@ -55,7 +59,7 @@ class UserControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, UserAlreadyExistsException {
+                    public void execute() throws ValidationException, UserAlreadyExistsException, UserNotFoundException {
                         userController.addUser(user);
                     }
                 });
@@ -70,7 +74,7 @@ class UserControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, UserAlreadyExistsException {
+                    public void execute() throws ValidationException, UserAlreadyExistsException, UserNotFoundException {
                         userController.addUser(user);
                     }
                 });
@@ -85,7 +89,7 @@ class UserControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, UserAlreadyExistsException {
+                    public void execute() throws ValidationException, UserAlreadyExistsException, UserNotFoundException {
                         userController.addUser(user);
                     }
                 });
@@ -100,7 +104,7 @@ class UserControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, UserAlreadyExistsException {
+                    public void execute() throws ValidationException, UserAlreadyExistsException, UserNotFoundException {
                         userController.addUser(user);
                     }
                 });
@@ -115,7 +119,7 @@ class UserControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, UserAlreadyExistsException {
+                    public void execute() throws ValidationException, UserAlreadyExistsException, UserNotFoundException {
                         userController.addUser(user);
                     }
                 });
@@ -130,7 +134,7 @@ class UserControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, UserAlreadyExistsException {
+                    public void execute() throws ValidationException, UserAlreadyExistsException, UserNotFoundException {
                         userController.addUser(user);
                     }
                 });
@@ -145,7 +149,7 @@ class UserControllerTest {
                 ValidationException.class,
                 new Executable() {
                     @Override
-                    public void execute() throws ValidationException, UserAlreadyExistsException {
+                    public void execute() throws ValidationException, UserAlreadyExistsException, UserNotFoundException {
                         userController.addUser(user);
                     }
                 });

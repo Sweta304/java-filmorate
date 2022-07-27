@@ -3,10 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.FilmAlreadyExistsException;
-import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -26,12 +23,12 @@ public class FilmController {
     }
 
     @PostMapping
-    public Film addFilm(@RequestBody @Valid Film film) throws FilmAlreadyExistsException, ValidationException {
+    public Film addFilm(@RequestBody @Valid Film film) throws FilmAlreadyExistsException, ValidationException, MpaNotFoundException, GenreNotFoundException, FilmNotFoundException {
         return filmService.addFilm(film);
     }
 
     @PutMapping
-    public Film updateFilm(@RequestBody @Valid Film film) throws FilmNotFoundException, ValidationException {
+    public Film updateFilm(@RequestBody @Valid Film film) throws FilmNotFoundException, ValidationException, MpaNotFoundException, GenreNotFoundException {
         return filmService.updateFilm(film);
     }
 
